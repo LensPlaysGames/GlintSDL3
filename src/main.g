@@ -1,29 +1,29 @@
 ;; Utilizing SDL3 from Glint
 
 ;; From SDL3/SDL_Init.h
-SDLInitFlags : enum(u32) {
+SDLInitFlags :: enum(u32) {
   ;; `SDL_INIT_VIDEO` implies `SDL_INIT_EVENTS`, should be initialized on
   ;; the main thread
   VIDEO = 0x00000020,
 };
 
 ;; Opaque
-SDL_Window : struct {};
-SDL_Renderer : struct {};
+SDL_Window :: struct {};
+SDL_Renderer :: struct {};
 
-SDLWindowFlags : enum(u32) {
+SDLWindowFlags :: enum(u32) {
   ;; window can be resized
   RESIZABLE            = 0x0000000000000020,
 };
 
 ;; afaik, an SDL_Event is 128 bytes that is cast depending on the first
 ;; four bytes treated as a uint32 to give an event kind.
-SDL_Event : union {
+SDL_Event :: union {
   type : u32;
   padding : [byte 128];
 };
 
-SDLEventTypes : enum(u32) {
+SDLEventTypes :: enum(u32) {
   ;; Unused (do not remove)
   FIRST = 0,
   ;; User-requested quit
@@ -79,9 +79,9 @@ while not done, {
 
   ;; Update active draw color.
   SDL_SetRenderDrawColor renderer, 0, 0, color, 0xff;
-
   ;; Draw active color to entire screen.
   SDL_RenderClear renderer;
+
   ;; Actually display rendered data.
   SDL_RenderPresent renderer;
 

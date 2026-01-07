@@ -1,11 +1,11 @@
 module sdl;
 
 ;; Opaque
-SDL_Window : struct {};
-SDL_Renderer : struct {};
+SDL_Window :: struct {};
+SDL_Renderer :: struct {};
 
 ;; From SDL3/SDL_Init.h
-SDLInitFlags : enum(u32) {
+SDLInitFlags :: enum(u32) {
   ;; `SDL_INIT_AUDIO` implies `SDL_INIT_EVENTS`
   AUDIO = 0x00000010,
   ;; `SDL_INIT_VIDEO` implies `SDL_INIT_EVENTS`, should be initialized on the main thread
@@ -22,7 +22,7 @@ SDLInitFlags : enum(u32) {
   CAMERA = 0x00010000,
 };
 
-SDLWindowFlags : enum(u32) {
+SDLWindowFlags :: enum(u32) {
   ;; window is in fullscreen mode
   FULLSCREEN           = 0x0000000000000001,
   ;; window usable with OpenGL context
@@ -79,12 +79,12 @@ SDLWindowFlags : enum(u32) {
 
 ;; afaik, an SDL_Event is 128 bytes that is cast depending on the first
 ;; four bytes treated as a uint32 to give an event kind.
-SDL_Event : union {
+SDL_Event :: union {
   type : u32;
   padding : [byte 128];
 };
 
-SDLEventTypes : enum(u32) {
+SDLEventTypes :: enum(u32) {
   ;; Unused (do not remove)
   FIRST = 0,
   ;; User-requested quit

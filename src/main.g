@@ -13,7 +13,7 @@ SDL_Renderer :: struct {};
 
 SDLWindowFlags :: enum(u32) {
   ;; window can be resized
-  RESIZABLE            = 0x0000000000000020,
+  RESIZABLE = 0x0000000000000020,
 };
 
 ;; afaik, an SDL_Event is 128 bytes that is cast depending on the first
@@ -34,7 +34,10 @@ external SDL_Init : bool(flags : u32);
 external SDL_CreateWindow : SDL_Window.ptr(title : byte.ptr, w, h : cint, flags : u32);
 external SDL_CreateRenderer : SDL_Renderer.ptr(window : SDL_Window.ptr, name : byte.ptr);
 external SDL_DestroyWindow : void(window : SDL_Window.ptr);
-external SDL_SetRenderDrawColor : void(renderer : SDL_Renderer.ptr, r : u8, g : u8, b : u8, a : u8);
+external SDL_SetRenderDrawColor : void(
+  renderer : SDL_Renderer.ptr,
+  r : u8, g : u8, b : u8, a : u8
+);
 external SDL_RenderClear : void(renderer : SDL_Renderer.ptr);
 external SDL_RenderPresent : void(renderer : SDL_Renderer.ptr);
 external SDL_DestroyRenderer : void(renderer : SDL_Renderer.ptr);
@@ -67,6 +70,29 @@ print "SDL Renderer Created...";
 
 print "GUI Creation: Success! Entering event loop...";
 
+;; TODO: Sierpinski triangle
+;; Need https://wiki.libsdl.org/SDL3/SDL_RenderLine
+;;
+;; Write helper to draw a triangle given three points A, B, and C (three
+;; lines AB, BC, AC).
+;;
+;; Write helper to draw a triangle given three points, then do it again
+;; three more times after adjusting the points like so:
+;;   1)
+;;     A -- A
+;;     B -- (A + B) / 2
+;;     C -- (A + C) / 2
+;;   2)
+;;     A -- (A + B) / 2
+;;     B -- B
+;;     C -- (B + C) / 2
+;;   3)
+;;     A -- (A + C) / 2
+;;     B -- (B + C) / 2
+;;     C -- C
+;;
+;; Put a max limit on the depth of this occurring, and, voila, fractal.
+
 ;; Enter event loop
 done :: false;
 event : SDL_Event;
@@ -81,7 +107,6 @@ while not done, {
   SDL_SetRenderDrawColor renderer, 0, 0, color, 0xff;
   ;; Draw active color to entire screen.
   SDL_RenderClear renderer;
-
   ;; Actually display rendered data.
   SDL_RenderPresent renderer;
 
@@ -89,7 +114,7 @@ while not done, {
   color += 1;
 
   ;; This simple program gets 1000s of FPS unless we do something about it.
-  SDL_Delay(10);
+  SDL_Delay 10;
 };
 
 SDL_DestroyRenderer renderer;

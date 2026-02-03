@@ -159,7 +159,7 @@ sierpinski_top : void(
   renderer : SDL_Renderer.ptr,
   steps : uint
 ) {
-  sierpinski renderer, 0.0, 320.0, 320.0, 320.0, 0.0, 0.0, steps;
+  sierpinski renderer, 0.0, 320.0, 320.0, 160.0, 0.0, 0.0, steps;
 };
 
 ;; Enter event loop

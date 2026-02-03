@@ -32,15 +32,28 @@ SDLEventTypes :: enum(u32) {
 
 external SDL_Init : bool(flags : u32);
 external SDL_CreateWindow : SDL_Window.ptr(title : byte.ptr, w, h : cint, flags : u32);
-external SDL_CreateRenderer : SDL_Renderer.ptr(window : SDL_Window.ptr, name : byte.ptr);
 external SDL_DestroyWindow : void(window : SDL_Window.ptr);
+
+;; https://wiki.libsdl.org/SDL3/SDL_CreateRenderer
+external SDL_CreateRenderer : SDL_Renderer.ptr(window : SDL_Window.ptr, name : byte.ptr);
+;; https://wiki.libsdl.org/SDL3/SDL_RenderLine
+external SDL_RenderLine : bool(
+  renderer : SDL_Renderer.ptr,
+  x1 : float, y1 : float,
+  x2 : float, y2 : float
+) discardable;
+;; https://wiki.libsdl.org/SDL3/SDL_SetRenderDrawColor
 external SDL_SetRenderDrawColor : void(
   renderer : SDL_Renderer.ptr,
   r : u8, g : u8, b : u8, a : u8
 );
+;; https://wiki.libsdl.org/SDL3/SDL_RenderClear
 external SDL_RenderClear : void(renderer : SDL_Renderer.ptr);
+;; https://wiki.libsdl.org/SDL3/SDL_RenderPresent
 external SDL_RenderPresent : void(renderer : SDL_Renderer.ptr);
+;; https://wiki.libsdl.org/SDL3/SDL_DestroyRenderer
 external SDL_DestroyRenderer : void(renderer : SDL_Renderer.ptr);
+
 external SDL_PollEvent : cint(e : SDL_Event.ptr);
 external SDL_Delay : void(ms : u32);
 external SDL_Quit : void();
@@ -70,33 +83,88 @@ print "SDL Renderer Created...";
 
 print "GUI Creation: Success! Entering event loop...";
 
-;; TODO: Sierpinski triangle
-;; Need https://wiki.libsdl.org/SDL3/SDL_RenderLine
-;;
-;; Write helper to draw a triangle given three points A, B, and C (three
-;; lines AB, BC, AC).
+;; Helper to draw a triangle given three points A, B, and C (three lines
+;; AB, BC, AC).
+draw_triangle : void(
+  renderer : SDL_Renderer.ptr,
+  ax : float, ay : float,
+  bx : float, by : float,
+  cx : float, cy : float,
+) {
+  ;; LINE AB
+  SDL_RenderLine renderer, ax, ay, bx, by;
+  ;; LINE AC
+  SDL_RenderLine renderer, ax, ay, cx, cy;
+  ;; LINE BC
+  SDL_RenderLine renderer, bx, by, cx, cy;
+};
+
+FPoint2 :: struct {
+  x : float;
+  y : float;
+};
+
+midpoint : FPoint2(
+  ax : float, ay : float,
+  bx : float, by : float
+) {
+  out : FPoint2;
+  out.x := ax + bx;
+  out.y := ay + by;
+  out.x /= 2.0;
+  out.y /= 2.0;
+  out;
+};
+
+;; Sierpinski triangle
 ;;
 ;; Write helper to draw a triangle given three points, then do it again
 ;; three more times after adjusting the points like so:
 ;;   1)
-;;     A -- A
-;;     B -- (A + B) / 2
-;;     C -- (A + C) / 2
-;;   2)
 ;;     A -- (A + B) / 2
-;;     B -- B
-;;     C -- (B + C) / 2
-;;   3)
-;;     A -- (A + C) / 2
+;;     B -- (A + C) / 2
+;;     C -- A
+;;   2)
+;;     A -- B
 ;;     B -- (B + C) / 2
-;;     C -- C
+;;     C -- (A + B) / 2
+;;   3)
+;;     A -- (B + C) / 2
+;;     B -- C
+;;     C -- (A + C) / 2
 ;;
 ;; Put a max limit on the depth of this occurring, and, voila, fractal.
+sierpinski : void(
+  renderer : SDL_Renderer.ptr,
+  ax : float, ay : float,
+  bx : float, by : float,
+  cx : float, cy : float,
+  steps : uint
+) {
+  draw_triangle renderer, ax, ay, bx, by, cx, cy;
+
+  steps -= 1;
+  if not steps, return;
+
+  mid_ab :: midpoint ax, ay, bx, by;
+  mid_ac :: midpoint ax, ay, cx, cy;
+  mid_bc :: midpoint bx, by, cx, cy;
+
+  sierpinski renderer, mid_ab.x, mid_ab.y, mid_ac.x, mid_ac.y, ax, ay, steps;
+  sierpinski renderer, bx, by, mid_bc.x, mid_bc.y, mid_ab.x, mid_ab.y, steps;
+  sierpinski renderer, mid_bc.x, mid_bc.y, cx, cy, mid_ac.x, mid_ac.y, steps;
+};
+
+sierpinski_top : void(
+  renderer : SDL_Renderer.ptr,
+  steps : uint
+) {
+  sierpinski renderer, 0.0, 320.0, 320.0, 320.0, 0.0, 0.0, steps;
+};
 
 ;; Enter event loop
 done :: false;
 event : SDL_Event;
-color : u8;
 while not done, {
   while (SDL_PollEvent &event), {
     if event.type = (u32 SDLEventTypes.QUIT),
@@ -104,14 +172,15 @@ while not done, {
   };
 
   ;; Update active draw color.
-  SDL_SetRenderDrawColor renderer, 0, 0, color, 0xff;
+  SDL_SetRenderDrawColor renderer, 0, 0, 0, 0xff;
   ;; Draw active color to entire screen.
   SDL_RenderClear renderer;
+
+  SDL_SetRenderDrawColor renderer, 0xff, 0xff, 0xff, 0xff;
+  sierpinski_top renderer, 3;
+
   ;; Actually display rendered data.
   SDL_RenderPresent renderer;
-
-  ;; Change active draw color for next frame.
-  color += 1;
 
   ;; This simple program gets 1000s of FPS unless we do something about it.
   SDL_Delay 10;

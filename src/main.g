@@ -150,17 +150,20 @@ sierpinski : void(
   mid_ac :: midpoint ax, ay, cx, cy;
   mid_bc :: midpoint bx, by, cx, cy;
 
-  sierpinski renderer, mid_ab.x, mid_ab.y, mid_ac.x, mid_ac.y, ax, ay, steps;
-  sierpinski renderer, bx, by, mid_bc.x, mid_bc.y, mid_ab.x, mid_ab.y, steps;
-  sierpinski renderer, mid_bc.x, mid_bc.y, cx, cy, mid_ac.x, mid_ac.y, steps;
+  sierpinski renderer, ax, ay, mid_ab.x, mid_ab.y, mid_ac.x, mid_ac.y, steps;
+  sierpinski renderer, mid_ab.x, mid_ab.y, bx, by, mid_bc.x, mid_bc.y, steps;
+  sierpinski renderer, mid_ac.x, mid_ac.y, mid_bc.x, mid_bc.y, cx, cy, steps;
 };
 
 sierpinski_top : void(
   renderer : SDL_Renderer.ptr,
   steps : uint
 ) {
-  sierpinski renderer, 0.0, 320.0, 320.0, 160.0, 0.0, 0.0, steps;
+  sierpinski renderer, 0.0, 480.0, 480.0, 480.0, 240.0, 0.0, steps;
 };
+
+x :: 1;
+max :: 10;
 
 ;; Enter event loop
 done :: false;
@@ -177,13 +180,18 @@ while not done, {
   SDL_RenderClear renderer;
 
   SDL_SetRenderDrawColor renderer, 0xff, 0xff, 0xff, 0xff;
-  sierpinski_top renderer, 3;
+
+  x += 1;
+  if x > max,
+    x := 1;
+
+  sierpinski_top renderer, x;
 
   ;; Actually display rendered data.
   SDL_RenderPresent renderer;
 
   ;; This simple program gets 1000s of FPS unless we do something about it.
-  SDL_Delay 10;
+  SDL_Delay 125;
 };
 
 SDL_DestroyRenderer renderer;

@@ -58,6 +58,8 @@ external SDL_PollEvent : cint(e : SDL_Event.ptr);
 external SDL_Delay : void(ms : u32);
 external SDL_Quit : void();
 
+
+
 print "Beginning GUI Creation...";
 
 if not (SDL_Init SDLInitFlags.VIDEO),
@@ -108,9 +110,10 @@ midpoint : FPoint2(
   ax : float, ay : float,
   bx : float, by : float
 ) {
-  out : FPoint2;
-  out.x := ax + bx;
-  out.y := ay + by;
+  out : FPoint2 !{
+    ax + bx,
+    ay + by
+  };
   out.x /= 2.0;
   out.y /= 2.0;
   out;

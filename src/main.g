@@ -121,17 +121,17 @@ midpoint : FPoint2(
 ;; Write helper to draw a triangle given three points, then do it again
 ;; three more times after adjusting the points like so:
 ;;   1)
-;;     A -- (A + B) / 2
-;;     B -- (A + C) / 2
-;;     C -- A
-;;   2)
-;;     A -- B
-;;     B -- (B + C) / 2
-;;     C -- (A + B) / 2
-;;   3)
-;;     A -- (B + C) / 2
-;;     B -- C
+;;     A -- A
+;;     B -- (A + B) / 2
 ;;     C -- (A + C) / 2
+;;   2)
+;;     A -- (A + B) / 2
+;;     B -- B
+;;     C -- (B + C) / 2
+;;   3)
+;;     A -- (A + C) / 2
+;;     B -- (B + C) / 2
+;;     C -- C
 ;;
 ;; Put a max limit on the depth of this occurring, and, voila, fractal.
 sierpinski : void(
@@ -143,16 +143,30 @@ sierpinski : void(
 ) {
   draw_triangle renderer, ax, ay, bx, by, cx, cy;
 
-  steps -= 1;
   if not steps, return;
+  steps -= 1;
 
   mid_ab :: midpoint ax, ay, bx, by;
   mid_ac :: midpoint ax, ay, cx, cy;
   mid_bc :: midpoint bx, by, cx, cy;
 
-  sierpinski renderer, ax, ay, mid_ab.x, mid_ab.y, mid_ac.x, mid_ac.y, steps;
-  sierpinski renderer, mid_ab.x, mid_ab.y, bx, by, mid_bc.x, mid_bc.y, steps;
-  sierpinski renderer, mid_ac.x, mid_ac.y, mid_bc.x, mid_bc.y, cx, cy, steps;
+  sierpinski renderer,
+    ax, ay,
+    mid_ab.x, mid_ab.y,
+    mid_ac.x, mid_ac.y,
+    steps;
+
+  sierpinski renderer,
+    mid_ab.x, mid_ab.y,
+    bx, by,
+    mid_bc.x, mid_bc.y,
+    steps;
+
+  sierpinski renderer,
+    mid_ac.x, mid_ac.y,
+    mid_bc.x, mid_bc.y,
+    cx, cy,
+    steps;
 };
 
 sierpinski_top : void(
